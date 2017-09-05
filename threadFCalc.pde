@@ -86,12 +86,22 @@ void setupFieldData(int num) {
   
 volatile int calcFieldCounter = 0;
 volatile int calcFieldCountTo = 1;
+volatile boolean fieldCountersAvailable = false;
+volatile boolean fieldCountersRequested = false;
 
 void thread_CalculateField() {
   flag_CalculateField_done = false;
+  fieldCountersAvailable = false;
   calcFieldCountTo = numField;
   for( int n = 0 ; n < numField ; n++ ) {
+    fieldCountersAvailable = false;
     calcFieldCounter = n;
+    
+    if( fieldCountersRequested ) {
+      fieldCountersAvailable = true;
+      while( fieldCountersRequested ) {}
+      fieldCountersAvailable = false;
+    }
     
     // update next element of fld2
     fld2[n] = noise( xf[n] , yf[n] , tf );
