@@ -14,154 +14,103 @@ float[] bandEnd   = { 0.30 , 0.43 , 0.53 , 0.63 , 0.80 };
 float[] bandWidth = { 0.007 , 0.007 , 0.007 , 0.007 , 0.007 };
 int numBands = 5;
 
-volatile int[]   pType0;    // 0 = bg ; 1 = outline ; 2 = color
-volatile int[]   band0;
-volatile float[] fldVal0;
-volatile float[] hueVal0;
-volatile float[] satVal0;
-volatile float[] briVal0;
-volatile int[]   pType1;
-volatile int[]   band1;
-volatile float[] fldVal1;
-volatile float[] hueVal1;
-volatile float[] satVal1;
-volatile float[] briVal1;
-
-void setupValues() {
-  pType0 = new int[num0];
-  band0 = new int[num0];
-  fldVal0 = new float[num0];
-  hueVal0 = new float[num0];
-  satVal0 = new float[num0];
-  briVal0 = new float[num0];
+void threadCCalc0() {
+  color[] col0a = new color[PA.num];
   for( int i = 0 ; i < num0 ; i++ ) {
-    pType0[i] = 2;
-    fldVal0[i] = 0;
-    hueVal0[i] = 0;
-    satVal0[i] = 0;
-    briVal0[i] = 0;
-  }
-  pType1 = new int[num1];
-  band1 = new int[num1];
-  fldVal1 = new float[num1];
-  hueVal1 = new float[num1];
-  satVal1 = new float[num1];
-  briVal1 = new float[num1];
-  for( int i = 0 ; i < num1 ; i++ ) {
-    pType1[i] = 2;
-    fldVal1[i] = 0;
-    hueVal1[i] = 0;
-    satVal1[i] = 0;
-    briVal1[i] = 0;
+    col0a[i] = color(0);
   }
   
-}
-
-
-void thread_CalculateValues0() {
-  flag_CalculateValues0_done = false;
-  for( int i = 0 ; i < num0 ; i++ ) {
-    float f = lerp( fld0[i] , fld1[i] , currentProgress );
-    band0[i] = -1;
-    fldVal0[i] = f;
-    int type = 0;
-    for( int b = 0 ; b < numBands ; b++ ) {
-      if( f >= (bandStart[b]-bandWidth[b]) && f <= (bandEnd[b]+bandWidth[b]) ) {
-        if( f >= bandStart[b] && f <= bandEnd[b] ) {
-          type = 2; //color
-          hueVal0[i] = lerp360( hue0[i] , hue1[i] , currentProgress );
-          satVal0[i] = lerp( sat0[i] , sat1[i] , currentProgress );
-          briVal0[i] = lerp( bri0[i] , bri1[i] , currentProgress );
-          band0[i] = b;
-        } else {
-          type = 1; //outline
+  while( true ) {
+    //println( "thread0 loop started" );
+    
+    while( !colFlg_draw_goRender0 ) {
+    }
+    colFlg_thread_Rendering0 = true;
+    //colFlg_thread_doneRendering0 = false;
+    
+    
+    for( int i = 0 ; i < num0 ; i++ ) {
+      float fldVal = lerp( fld0[i] , fld1[i] , currentProgress );
+      float hueVal = lerp360( hue0[i] , hue1[i] , currentProgress );
+      float satVal = lerp( sat0[i] , sat1[i] , currentProgress );
+      float briVal = lerp( bri0[i] , bri1[i] , currentProgress );
+      color c = bgColor;
+      for( int b = 0 ; b < numBands ; b++ ) {
+        if( fldVal >= (bandStart[b]-bandWidth[b]) && fldVal <= (bandEnd[b]+bandWidth[b]) ) {
+          if( fldVal >= bandStart[b] && fldVal <= bandEnd[b] ) {
+            c = hsbColor( (hueVal+b*60)%360 , satVal , briVal );
+          } else {
+            c = outlineColor;
+          }
         }
       }
-      pType0[i] = type;
+      col0a[i] = lerpColor( col0a[i] ,  c , alpha );
     }
+    //colFlg_thread_Rendering0 = false;
+    colFlg_thread_doneRendering0 = true;
+
+    while( !colFlg_draw_goUpdate0 ) {
+    }
+    colFlag_thread_Updating0 = true;
+    //colFlag_thread_doneUpdating0 = false;
+    
+    for( int i = 0 ; i < num0 ; i++ ) {
+      col0[i] = col0a[i];
+    }
+    //colFlag_thread_Updating0 = false;
+    colFlag_thread_doneUpdating0 = true;
+    
+    //println( "thread0 loop complete" );
+    colFlag_thread_loopComplete0 = true;
   }
-  flag_CalculateValues0_done = true;
-  return;
 }
 
-void thread_CalculateValues1() {
-  flag_CalculateValues1_done = false;
+void threadCCalc1() {
+  color[] col1a = new color[PA.num];
   for( int i = 0 ; i < num1 ; i++ ) {
-    float f = lerp( fld0[i+num0] , fld1[i+num0] , currentProgress );
-    band1[i] = -1;
-    fldVal1[i] = f;
-    int type = 0;
-    for( int b = 0 ; b < numBands ; b++ ) {
-      if( f >= (bandStart[b]-bandWidth[b]) && f <= (bandEnd[b]+bandWidth[b]) ) {
-        if( f >= bandStart[b] && f <= bandEnd[b] ) {
-          type = 2; //color
-          hueVal1[i] = lerp360( hue0[i+num0] , hue1[i+num0] , currentProgress );
-          satVal1[i] = lerp( sat0[i+num0] , sat1[i+num0] , currentProgress );
-          briVal1[i] = lerp( bri0[i+num0] , bri1[i+num0] , currentProgress );
-          band1[i] = b;
-        } else {
-          type = 1; //outline
-        }
-      }
-    }
-    pType1[i] = type;
+    col1a[i] = color(0);
   }
-  flag_CalculateValues1_done = true;
-  return;
-}
-
-void thread_CalculateColor0() {
-  flag_CalculateColor0_done = false;
-  color c;
-  for( int i = 0 ; i < num0 ; i++ ) {
-    if( pType0[i] == 1 ) {
-      c = outlineColor;
-    } else if( pType0[i] == 2 ) {
-      c = hsbColor( (hueVal0[i]+band0[i]*60)%360 , satVal0[i] , briVal0[i] );
-    } else {
-      c = bgColor;
-    }
-    col0a[i] = lerpColor( col0[i] ,  c , alpha );
-  }
-  flag_CalculateColor0_done = true;
-  return;
-}
-      
-void thread_CalculateColor1() {
-  flag_CalculateColor1_done = false;
-  color c;
-  for( int i = 0 ; i < num1 ; i++ ) {
-    if( pType1[i] == 1 ) {
-      c = outlineColor;
-    } else if( pType1[i] == 2 ) {
-      c = hsbColor( (hueVal1[i]+band1[i]*60)%360 , satVal1[i] , briVal1[i] );
-    } else {
-      c = bgColor;
-    }
-    col1a[i] = lerpColor( col1[i] ,  c , alpha );
-  }
-  flag_CalculateColor1_done = true;
-  return;
-}      
   
+  while( true ) {
+    //println( "thread1 loop started" );
+    
+    while( !colFlg_draw_goRender1 ) {
+    }
+    colFlg_thread_Rendering1 = true;
+    //colFlg_thread_doneRendering1 = false;
+    
+    for( int i = 0 ; i < num1 ; i++ ) {
+      float fldVal = lerp( fld0[i+num0] , fld1[i+num0] , currentProgress );
+      float hueVal = lerp360( hue0[i+num0] , hue1[i+num0] , currentProgress );
+      float satVal = lerp( sat0[i+num0] , sat1[i+num0] , currentProgress );
+      float briVal = lerp( bri0[i+num0] , bri1[i+num0] , currentProgress );
+      color c = bgColor;
+      for( int b = 0 ; b < numBands ; b++ ) {
+        if( fldVal >= (bandStart[b]-bandWidth[b]) && fldVal <= (bandEnd[b]+bandWidth[b]) ) {
+          if( fldVal >= bandStart[b] && fldVal <= bandEnd[b] ) {
+            c = hsbColor( (hueVal+b*60)%360 , satVal , briVal );
+          } else {
+            c = outlineColor;
+          }
+        }
+      }
+      col1a[i] = lerpColor( col1a[i] ,  c , alpha );
+    }
+    //colFlg_thread_Rendering1 = false;
+    colFlg_thread_doneRendering1 = true;
 
-void thread_UpdateColor0() {
-  flag_UpdateColor0_done = false;
-  for( int i = 0 ; i < num0 ; i++ ) {
-    col0[i] = col0a[i];
+    while( !colFlg_draw_goUpdate1 ) {
+    }
+    colFlag_thread_Updating1 = true;
+    //colFlag_thread_doneUpdating1 = false;
+    
+    for( int i = 0 ; i < num1 ; i++ ) {
+      col1[i] = col1a[i];
+    }
+    //colFlag_thread_Updating1 = false;
+    colFlag_thread_doneUpdating1 = true;
+    
+    //println( "thread1 loop complete" );
+    colFlag_thread_loopComplete1 = true;
   }
-  flag_UpdateColor0_done = true;
-  //println( "flag_UpdateColor0_done " + flag_UpdateColor0_done );
-  return;
-}
-
-
-void thread_UpdateColor1() {
-  flag_UpdateColor1_done = false;
-  for( int i = 0 ; i < num1 ; i++ ) {
-    col1[i] = col1a[i];
-  }
-  flag_UpdateColor1_done = true;
-  //println( "flag_UpdateColor1_done " + flag_UpdateColor1_done );
-  return;
 }

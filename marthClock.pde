@@ -1,32 +1,30 @@
 String zip = "98264";
 String APIkey = "41ece43d5325fc28";
-Boolean liveData = false;    // set true to get real data from api, false for testing
+Boolean liveData = true;    // set true to get real data from api, false for testing
 Boolean logClockUpdateTime = false;
 
 volatile PixelArray PA;
 
 // fld: controls the field ( background, outline, or fill )
+volatile float[] fld0;
+volatile float[] fld1;
+volatile float[] hue0;
+volatile float[] hue1;
+volatile float[] sat0;
+volatile float[] sat1;
+volatile float[] bri0;
+volatile float[] bri1;
 volatile float fldProgress = 0;
 volatile float currentProgress = 0;
-
-volatile boolean flag_CalculateField_done = true;
-volatile boolean flag_UpdateField_done = true;
-
-volatile boolean flag_CalculateColor0_done = true;
-volatile boolean flag_UpdateColor0_done = true;
-volatile boolean flag_CalculateValues0_done = true;
-volatile boolean flag_CalculateColor1_done = true;
-volatile boolean flag_UpdateColor1_done = true;
-volatile boolean flag_CalculateValues1_done = true;
-
-
 volatile boolean fldFlag_thread_readyToUpdate = false;
 volatile boolean fldFlag_draw_goUpdate = false;
 volatile boolean fldFlag_thread_doneUpdating = false;
 volatile boolean fldFlag_draw_requestProgress = false;
 volatile boolean fldFlag_thread_progressReady = false;
 
+volatile color[] col0;
 int num0;
+volatile color[] col1;
 int num1;
 volatile boolean colFlg_draw_goRender0 = false;
 volatile boolean colFlg_draw_goRender1 = false;
@@ -42,11 +40,6 @@ volatile boolean colFlag_thread_doneUpdating0 = false;
 volatile boolean colFlag_thread_doneUpdating1 = false;
 volatile boolean colFlag_thread_loopComplete0 = false;
 volatile boolean colFlag_thread_loopComplete1 = false;
-
-volatile color[] col0;
-volatile color[] col1;
-volatile color[] col0a;
-volatile color[] col1a;
 
 
 // resolution helpers
@@ -66,9 +59,8 @@ int millisOffset;
 
 Clock clock;
 
-
 void setup() {
-  frameRate(10);
+  //frameRate(25);
   size( 800 , 480 );
   pg = createGraphics( width , height );
   halfWidth = width/2;
@@ -82,86 +74,152 @@ void setup() {
   innerRadius = -1;
   
   PA = new PixelArray();
+  fld0 = new float[PA.num];
+  fld1 = new float[PA.num];
+  hue0 = new float[PA.num];
+  hue1 = new float[PA.num];
+  sat0 = new float[PA.num];
+  sat1 = new float[PA.num];
+  bri0 = new float[PA.num];
+  bri1 = new float[PA.num];
+  for( int i = 0 ; i < PA.num ; i++ ) {
+    fld0[i] = 0;
+    fld1[i] = 0;
+    hue0[i] = 0;
+    hue1[i] = 0;
+    sat0[i] = 0;
+    sat1[i] = 0;
+    bri0[i] = 0;
+    bri1[i] = 0;
+  }
   num0 = PA.num/2;
   num1 = PA.num-num0;
-  setupFieldData( PA.num );
-  setupValues();
   col0 = new color[num0];
-  col0a = new color[num0];
+  col1 = new color[num1];
   for( int i = 0 ; i < num0 ; i++ ) {
     col0[i] = color(0);
-    col0a[i] = color(0);
   }
-  col1 = new color[num1];
-  col1a = new color[num1];
   for( int i = 0 ; i < num1 ; i++ ) {
     col1[i] = color(0);
-    col1a[i] = color(0);
   }
+  
+  
+  thread( "threadFCalc" );
+  while( !fldFlag_thread_readyToUpdate ) {
+    // wait until fld data ready
+  }
+  fldFlag_thread_readyToUpdate = false;
+  fldFlag_draw_goUpdate = true;
+  while( !fldFlag_thread_doneUpdating ) {
+    // wait until done updating
+  }
+  fldFlag_thread_doneUpdating = false;
+  
+  while( !fldFlag_thread_readyToUpdate ) {
+    // wait until fld data ready
+  }
+  fldFlag_thread_readyToUpdate = false;
+  fldFlag_draw_goUpdate = true;
+  while( !fldFlag_thread_doneUpdating ) {
+    // wait until done updating
+  }
+  fldFlag_thread_doneUpdating = false;
+  
+  thread( "threadCCalc0" );
+  thread( "threadCCalc1" );
 }
 
 boolean logOut = false;
 void draw() {
-  int frameStartTime = millis();
-  //background(bgColor);
+  background(bgColor);
   
-  // check status of field calculations and set a flag
-  boolean fieldCalcsDone = flag_CalculateField_done;
+  if( logOut ) { println( "frame: " , frameCount , "  time: " , millis() , "  FRAMESTART" ); }
   
-  
-  
-  
-  // CALCULATE, DRAW, and log STEP
-  // check if field calculations are ready to restart. If so, restart.
-  if( fieldCalcsDone ) {
-    thread( "thread_CalculateField" );
+  // request fld progress
+  fldFlag_draw_requestProgress = true;
+  while( !fldFlag_thread_progressReady ) {
+    // wait until progress is ready
   }
-  // start color calculations
-  thread( "thread_CalculateColor0" );
-  thread( "thread_CalculateColor1" );
-  // draw the pixels
+  currentProgress = fldProgress;
+  fldFlag_thread_progressReady = false;
+  if( logOut ) { println( "frame: " , frameCount , "  time: " , millis() , "  PROGRESSUPDATED" ); }
+  
+  
+  colFlg_draw_goRender0 = true;
+  while( !colFlg_thread_Rendering0 ) {}
+  colFlg_thread_Rendering0 = false;
+  colFlg_draw_goRender0 = false;
+  if( logOut ) { println( "frame: " , frameCount , "  time: " , millis() , "  RENDERSTART0" ); }
+   
+  colFlg_draw_goRender1 = true;
+  while( !colFlg_thread_Rendering1 ) {}
+  colFlg_thread_Rendering1 = false;
+  colFlg_draw_goRender1 = false;
+  if( logOut ) { println( "frame: " , frameCount , "  time: " , millis() , "  RENDERSTART1" ); }
+  
+  
   loadPixels();
   for( int i = 0 ; i < width*height ; i++ ) {
-    int ind = PA.I[i];
-    if( ind >=0 ) {
-      if( ind < num0 ) {
-        pixels[ i ] = col0[ ind ];
+    
+    if( PA.I[i] >=0 ) {
+      if( PA.I[i] < num0 ) {
+        pixels[ i ] = col0[ PA.I[i] ];
       } else {
-        pixels[ i ] = col1[ ind-num0 ];
+        pixels[ i ] = col1[ PA.I[i]-num0 ];
       }
     }
   }
   updatePixels();
+  if( logOut ) { println( "frame: " , frameCount , "  time: " , millis() , "  PIXELSDONE" ); }
   
-  // wait until color calculations are complete
-  while( !( flag_CalculateColor0_done && flag_CalculateColor1_done ) ) {  }
+  while( !colFlg_thread_doneRendering0 ) {}
+  colFlg_thread_doneRendering0 = false;
+  if( logOut ) { println( "frame: " , frameCount , "  time: " , millis() , "  RENDERDONE0" ); }
+  while( !colFlg_thread_doneRendering1 ) {}
+  colFlg_thread_doneRendering1 = false;
+  if( logOut ) { println( "frame: " , frameCount , "  time: " , millis() , "  RENDERDONE1" ); }
+ 
+  colFlg_draw_goUpdate0 = true;
+  while( !colFlag_thread_Updating0 ) {}
+  colFlag_thread_Updating0 = false;
+  colFlg_draw_goUpdate0 = false;
+  if( logOut ) { println( "frame: " , frameCount , "  time: " , millis() , "  PIXEL UPDATE STARTED0" ); }
   
+  colFlg_draw_goUpdate1 = true;
+  while( !colFlag_thread_Updating1 ) {}
+  colFlag_thread_Updating1 = false;
+  colFlg_draw_goUpdate1 = false;
+  if( logOut ) { println( "frame: " , frameCount , "  time: " , millis() , "  PIXEL UPDATE STARTED1" ); }
   
-  // UPDATE STEP
-  // update color data
-  thread( "thread_UpdateColor0" );
-  thread( "thread_UpdateColor1" );
-  // check if Field Data is ready to update. if so, update it.
-  if( fieldCalcsDone ) {
-    thread( "thread_UpdateField" );
-    // current progress is now zero
-  } else {
-    // if Field Data not ready, get current progress
-    while( !( fieldCountersAvailable ||  fieldCalcsDone )  ) {}
-    currentProgress = float(calcFieldCounter)/float(calcFieldCountTo);
+  if( fldFlag_thread_readyToUpdate ) {
+    fldFlag_thread_readyToUpdate = false;
+    fldFlag_draw_goUpdate = true;
+    if( logOut ) { println( "frame: " , frameCount , "  time: " , millis() , "  FLD UPDATE STARTED" ); }
+    while( !fldFlag_thread_doneUpdating ) {
+      // wait until done updating
+    }
+    fldFlag_thread_doneUpdating = false;
+    if( logOut ) { println( "frame: " , frameCount , "  time: " , millis() , "  FLD UPDATE DONE" ); }
   }
-  // wait until all updating is complete
-  while( !( flag_UpdateField_done && flag_UpdateColor0_done && flag_UpdateColor1_done ) ) {
-    //println( "waiting for update to complete: " + flag_UpdateField_done + "," + flag_UpdateColor0_done + "," + flag_UpdateColor1_done );
+  
+  
+  while( !colFlag_thread_doneUpdating0 ) {}
+  colFlag_thread_doneUpdating0 = false;
+  if( logOut ) { println( "frame: " , frameCount , "  time: " , millis() , "  PIXELS UPDATE DONE0" ); }
+  while( !colFlag_thread_doneUpdating1 ) {}
+  colFlag_thread_doneUpdating1 = false;
+  if( logOut ) { println( "frame: " , frameCount , "  time: " , millis() , "  PIXELS UPDATE DONE1" ); }
+  
+  while( !colFlag_thread_loopComplete0 ) {}
+  colFlag_thread_loopComplete0 = false;
+  while( !colFlag_thread_loopComplete1 ) {}
+  colFlag_thread_loopComplete1 = false;
+  
+  if( frameCount%500 == 0 ) {
+    println( "frameRate: " , frameRate );
   }
   
   
-  // start next value calculations
-  thread( "thread_CalculateValues0" );
-  thread( "thread_CalculateValues1" );
-  
-  
-  // time keepers
   if( second() != prevSecond ) {
     prevSecond = second();
     secondChanged = true;
@@ -180,28 +238,9 @@ void draw() {
     dayChanged = true;
     clock.updateAstronomy();
   }
-  // clock drawers
+    
   clock.drawClock();
   
-  // wait until value calculations are complete
-  while( !( flag_CalculateValues0_done && flag_CalculateValues1_done ) ) {  }
-  
-  // Take care of output and housekeeping
-  // framerate logger
-  if( frameCount%500 == 0 ) {
-    println( "frameRate: " , frameRate );
-  }
-  // WAIT STEP
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  // input doers
   if( mouseDownQuit ) {
     if( millis() - mousePressTime > mousePressTimeout ) {
       exit();
@@ -211,6 +250,7 @@ void draw() {
       showSystemMessage( msg );
     }
   }
+  
   if( alphaSliderEngaged ) {
     alpha = lerpCube( alphaMin , alphaMax , float(mouseX)/float(width) );
     String msg = "smoothness =  " + nf( float( round( alpha*1000 ) ) / 1000 , 0 , 3);
@@ -221,15 +261,12 @@ void draw() {
     String msg = "speed =  " + nf( float( round( masterSpeed*100 ) ) / 100 , 0 , 2);
     showSystemMessage( msg );
   }
-  // screenshot makers
+  
   if( captureScreenshot ) {
     captureScreenshot = false;
     save( "screenShot.jpg" );
   }
-  
-  
-  
-  //exit();
+    
   
 }
 
