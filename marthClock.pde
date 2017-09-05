@@ -1,6 +1,6 @@
 String zip = "98264";
 String APIkey = "41ece43d5325fc28";
-Boolean liveData = true;    // set true to get real data from api, false for testing
+Boolean liveData = false;    // set true to get real data from api, false for testing
 Boolean logClockUpdateTime = false;
 
 volatile PixelArray PA;
@@ -68,6 +68,7 @@ Clock clock;
 
 
 void setup() {
+  frameRate(10);
   size( 800 , 480 );
   pg = createGraphics( width , height );
   halfWidth = width/2;
@@ -146,6 +147,7 @@ void draw() {
     // current progress is now zero
   } else {
     // if Field Data not ready, get current progress
+    while( !( fieldCountersAvailable ||  fieldCalcsDone )  ) {}
     currentProgress = float(calcFieldCounter)/float(calcFieldCountTo);
   }
   // wait until all updating is complete
