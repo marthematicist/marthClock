@@ -8,7 +8,7 @@ Clock clock;
 PixelEngine PE;
 
 // SETTINGS
-float alpha = 0.02;
+float alpha = 0.03;
 float masterSpeed = 3;
 
 float fDetail = 0.010;

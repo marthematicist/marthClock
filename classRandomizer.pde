@@ -49,7 +49,7 @@ class Randomizer implements Runnable {
       float ySat = RenderedPixels[counter].ySat;
       float yBri = RenderedPixels[counter].yBri;
       fld[counter] = constrain( noise( xFld , yFld , tf ) + fOffset , 0 , 1 );
-      hue[counter] = constrain( (noise( xHue , yHue , th )*1080)%360 + hOffset , 0 , 360 );
+      hue[counter] = constrain( (noise( xHue , yHue , th )*1440)%360 + hOffset , 0 , 360 );
       sat[counter] = constrain( noise( xSat , ySat , ts ) + sOffset , 0 , 1 );
       bri[counter] = constrain( noise( xBri , yBri , tb ) + bOffset , 0 , 1 );
       // cleanup
