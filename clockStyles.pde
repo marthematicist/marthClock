@@ -100,6 +100,25 @@ class Clock {
   
   void drawClock() {
     
+    if( second() != prevSecond ) {
+      prevSecond = second();
+      secondChanged = true;
+    }
+    if( minute() != prevMin ) {
+      prevMin = minute();
+      minuteChanged = true;
+    }
+    if( hour() != prevHour ) {
+      prevHour = hour();
+      hourChanged = true;
+      clock.updateWeather();
+    }
+    if( day() != prevDay ) {
+      prevDay = day();
+      dayChanged = true;
+      clock.updateAstronomy();
+    }
+    
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // CLOCK TYPE 10 ///////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
