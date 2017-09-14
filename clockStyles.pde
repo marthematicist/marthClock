@@ -81,8 +81,8 @@ class Clock {
     font3 = createFont("TruenoRg.otf",100);
     font4 = createFont("TruenoRg.otf",100);
     //updateWeather();
-    w =  loadXML("98264-temp.xml");
-    astro = loadXML("98264-sunrise.xml");
+    w =  loadXML("mostRecentWeather.xml");
+    astro = loadXML("mostRecentAstro.xml");
   }
   
   void nextClock() {
@@ -1099,9 +1099,14 @@ class Clock {
   
   void updateAstronomy() {
     if( liveData ) {
-      astro = loadXML( API_URL_astronomy );
+      try {
+        astro = loadXML( API_URL_astronomy );
+        saveXML( astro , "mostRecentAstro.xml" );
+      } catch ( Exception e ) {
+        astro = loadXML("mostRecentAstro.xml");
+      }
     } else {
-      astro = loadXML("98264-sunrise.xml");
+      astro = loadXML("mostRecentAstro.xml");
     }
     
     sunriseHour = Integer.parseInt(astro.getChild("sun_phase/sunrise/hour").getContent("hour"));
@@ -1115,9 +1120,14 @@ class Clock {
   
   void updateWeather() {
     if( liveData ) {
-      w = loadXML( API_URL_forecast );
+      try {
+        w = loadXML( API_URL_forecast );
+        saveXML( astro , "mostRecentWeather.xml" );
+      } catch(Exception e) {
+        w =  loadXML("mostRecentWeather.xml");
+      }
     } else {
-      w =  loadXML("98264-temp.xml");
+      w =  loadXML("mostRecentWeather.xml");
     }
     println( "---------------" );
     day0_dayName = w.getChild("forecast/simpleforecast/forecastdays").getChild(1).getChild("date/weekday_short").getContent("weekday_short");

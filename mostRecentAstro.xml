@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+  <version>0.1</version>
+  <termsofService>http://www.wunderground.com/weather/api/d/terms.html</termsofService>
+  <features>
+    <feature>astronomy</feature>
+  </features>
+  <moon_phase>
+    <percentIlluminated>40</percentIlluminated>
+    <ageOfMoon>23</ageOfMoon>
+    <current_time>
+      <hour>20</hour>
+      <minute>04</minute>
+    </current_time>
+    <sunset>
+      <hour>19</hour>
+      <minute>26</minute>
+    </sunset>
+    <sunrise>
+      <hour>6</hour>
+      <minute>44</minute>
+    </sunrise>
+    <moonset>
+      <hour>15</hour>
+      <minute>09</minute>
+    </moonset>
+    <moonrise>
+      <hour/>
+      <minute/>
+    </moonrise>
+  </moon_phase>
+  <sun_phase>
+    <sunset>
+      <hour>19</hour>
+      <minute>26</minute>
+    </sunset>
+    <sunrise>
+      <hour>6</hour>
+      <minute>44</minute>
+    </sunrise>
+  </sun_phase>
+</response>
