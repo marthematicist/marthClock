@@ -60,10 +60,10 @@ class Randomizer implements Runnable {
       progress = float(counter) / float(numRenderedPixels);
       if( counter >= numRenderedPixels ) {
         counter = 0;
-        tf += fSpeed*masterSpeed;
-        th += hSpeed*masterSpeed;
-        ts += sSpeed*masterSpeed;
-        tb += bSpeed*masterSpeed;
+        tf += fSpeed*masterSpeed*0.010;
+        th += hSpeed*masterSpeed*0.005;
+        ts += sSpeed*masterSpeed*0.05;
+        tb += bSpeed*masterSpeed*0.05;
         progress = 0;
         doneWithBatch = true;
       }

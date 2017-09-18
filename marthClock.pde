@@ -1,9 +1,11 @@
 String zip = "98264";
 String APIkey = "41ece43d5325fc28";
-Boolean liveData = true;    // set true to get real data from api, false for testing
+Boolean liveData = false;    // set true to get real data from api, false for testing
 Boolean logClockUpdateTime = false;
+Boolean testing = true;
 
 void setup() {
+  if( testing ) { frameRate(16); }
   size( 800 , 480 );
   pg = createGraphics( width , height );
   halfWidth = width/2;

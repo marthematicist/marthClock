@@ -9,22 +9,21 @@ PixelEngine PE;
 
 // SETTINGS
 float alpha = 0.03;
-float masterSpeed = 3;
+float masterSpeed = 1;
 
-float fDetail = 0.010;
-float hDetail = 0.0002;
-float sDetail = 0.029;
-float bDetail = 0.049;
-float fSpeed = 0.010;
-float hSpeed = 0.005;
-float sSpeed = 0.05;
-float bSpeed = 0.05;
-float fOffset = 0;
+float fDetail = 1;
+float hDetail = 1;
+float sDetail = 1;
+float bDetail = 1;
+float fSpeed = 1;
+float hSpeed = 1;
+float sSpeed = 1;
+float bSpeed = 1;
+float fOffset = 0.0;
 float hOffset = 0;
 float sOffset = 0.25;
 float bOffset = 0.25;
 float bandOffset = 30;
-
 float[] bandStart = { 0.20 , 0.37 , 0.47 , 0.57 , 0.70 };
 float[] bandEnd   = { 0.30 , 0.43 , 0.53 , 0.63 , 0.80 };
 float[] bandWidth = { 0.007 , 0.007 , 0.007 , 0.007 , 0.007 };

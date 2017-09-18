@@ -287,26 +287,19 @@ class RenderedPixel {
       iPixels[i] = xt.get(i) + yt.get(i)*width;
     }
     // Calculate random value locations
-    xFld = xRender * fDetail;
-    yFld = yRender * fDetail;
-    xHue = (xRender+1*width) * hDetail;
-    yHue = yRender * hDetail;
-    xSat = (xRender+2*width) * sDetail;
-    ySat = yRender * sDetail;
-    xBri = (xRender+3*width) * bDetail;
-    yBri = yRender * bDetail;
+    setRandomLocationValues();
   }
   
   void setRandomLocationValues() {
     // Calculate random value locations
-    xFld = xRender * fDetail;
-    yFld = yRender * fDetail;
-    xHue = (xRender+1*width) * hDetail;
-    yHue = yRender * hDetail;
-    xSat = (xRender+2*width) * sDetail;
-    ySat = yRender * sDetail;
-    xBri = (xRender+3*width) * bDetail;
-    yBri = yRender * bDetail;
+    xFld = xRender * fDetail*0.01;
+    yFld = yRender * fDetail*0.01;
+    xHue = (xRender+1*width) * hDetail*0.0002;
+    yHue = yRender * hDetail*0.0002;
+    xSat = (xRender+2*width) * sDetail*0.03;
+    ySat = yRender * sDetail*0.03;
+    xBri = (xRender+3*width) * bDetail*0.05;
+    yBri = yRender * bDetail*0.05;
   }
   
   void updateColor( float progress ) {
