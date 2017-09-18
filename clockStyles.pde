@@ -80,9 +80,8 @@ class Clock {
     font2 = createFont("TruenoRg.otf",100);
     font3 = createFont("TruenoRg.otf",100);
     font4 = createFont("TruenoRg.otf",100);
-    //updateWeather();
-    w =  loadXML("mostRecentWeather.xml");
-    astro = loadXML("mostRecentAstro.xml");
+    updateWeather();
+    updateAstronomy();
   }
   
   void nextClock() {
@@ -1101,12 +1100,12 @@ class Clock {
     if( liveData ) {
       try {
         astro = loadXML( API_URL_astronomy );
-        saveXML( astro , "mostRecentAstro.xml" );
+        saveXML( astro , "weatherdata/mostRecentAstro.xml" );
       } catch ( Exception e ) {
-        astro = loadXML("mostRecentAstro.xml");
+        astro = loadXML("weatherdata/mostRecentAstro.xml");
       }
     } else {
-      astro = loadXML("mostRecentAstro.xml");
+      astro = loadXML("weatherdata/mostRecentAstro.xml");
     }
     
     sunriseHour = Integer.parseInt(astro.getChild("sun_phase/sunrise/hour").getContent("hour"));
@@ -1122,12 +1121,12 @@ class Clock {
     if( liveData ) {
       try {
         w = loadXML( API_URL_forecast );
-        saveXML( astro , "mostRecentWeather.xml" );
+        saveXML( w , "weatherdata/mostRecentWeather.xml" );
       } catch(Exception e) {
-        w =  loadXML("mostRecentWeather.xml");
+        w =  loadXML("weatherdata/mostRecentWeather.xml");
       }
     } else {
-      w =  loadXML("mostRecentWeather.xml");
+      w =  loadXML("weatherdata/mostRecentWeather.xml");
     }
     println( "---------------" );
     day0_dayName = w.getChild("forecast/simpleforecast/forecastdays").getChild(1).getChild("date/weekday_short").getContent("weekday_short");
@@ -1138,8 +1137,18 @@ class Clock {
     day0_icon_url_night = w.getChild("forecast/txt_forecast/forecastdays").getChild(3).getChild("icon_url").getContent("icon_url");
     day0_windavg = w.getChild("forecast/simpleforecast/forecastdays").getChild(1).getChild("avewind/mph").getContent("mph");
     day0_winddir = w.getChild("forecast/simpleforecast/forecastdays").getChild(1).getChild("avewind/dir").getContent("dir");
-    icon0 = loadImage( day0_icon_url );
-    icon0Night = loadImage( day0_icon_url_night );
+    try {
+      icon0 = loadImage( day0_icon_url );
+      icon0.save( "weatherdata/icon0.png" );
+    } catch(Exception e ) {
+      icon0 = loadImage( "weatherdata/icon0.png" );
+    }
+    try {
+      icon0Night = loadImage( day0_icon_url_night );
+      icon0Night.save( "weatherdata/icon0Night.png" );
+    } catch(Exception e ) {
+      icon0Night = loadImage( "weatherdata/icon0.png" );
+    }
     day0_dateText = ( day0_dayName + " | " + day0_dayNum );
     day0_tempText = ( day0_high + " | " + day0_low );
     day0_windText = ( day0_winddir + " at " + day0_windavg + " mph" );
@@ -1157,7 +1166,12 @@ class Clock {
     day1_icon_url = w.getChild("forecast/simpleforecast/forecastdays").getChild(3).getChild("icon_url").getContent("icon_url");
     day1_windavg = w.getChild("forecast/simpleforecast/forecastdays").getChild(3).getChild("avewind/mph").getContent("mph");
     day1_winddir = w.getChild("forecast/simpleforecast/forecastdays").getChild(3).getChild("avewind/dir").getContent("dir");
-    icon1 = loadImage( day1_icon_url );
+    try {
+      icon1 = loadImage( day1_icon_url );
+      icon1.save( "weatherdata/icon1.png" );
+    } catch(Exception e ) {
+      icon1 = loadImage( "weatherdata/icon1.png" );
+    }
     day1_dateText = ( day1_dayName + " | " + day1_dayNum );
     day1_tempText = ( day1_high + " | " + day1_low );
     day1_windText = ( day1_winddir + " at " + day1_windavg + " mph" );
@@ -1175,7 +1189,12 @@ class Clock {
     day2_icon_url = w.getChild("forecast/simpleforecast/forecastdays").getChild(5).getChild("icon_url").getContent("icon_url");
     day2_windavg = w.getChild("forecast/simpleforecast/forecastdays").getChild(5).getChild("avewind/mph").getContent("mph");
     day2_winddir = w.getChild("forecast/simpleforecast/forecastdays").getChild(5).getChild("avewind/dir").getContent("dir");
-    icon2 = loadImage( day2_icon_url );
+    try {
+      icon2 = loadImage( day2_icon_url );
+      icon2.save( "weatherdata/icon2.png" );
+    } catch(Exception e ) {
+      icon2 = loadImage( "weatherdata/icon2.png" );
+    }
     day2_dateText = ( day2_dayName + " | " + day2_dayNum );
     day2_tempText = ( day2_high + " | " + day2_low );
     day2_windText = ( day2_winddir + " at " + day2_windavg + " mph" );
@@ -1193,7 +1212,12 @@ class Clock {
     day3_icon_url = w.getChild("forecast/simpleforecast/forecastdays").getChild(7).getChild("icon_url").getContent("icon_url");
     day3_windavg = w.getChild("forecast/simpleforecast/forecastdays").getChild(7).getChild("avewind/mph").getContent("mph");
     day3_winddir = w.getChild("forecast/simpleforecast/forecastdays").getChild(7).getChild("avewind/dir").getContent("dir");
-    icon3 = loadImage( day3_icon_url );
+    try {
+      icon3 = loadImage( day3_icon_url );
+      icon3.save( "weatherdata/icon3.png" );
+    } catch(Exception e ) {
+      icon3 = loadImage( "weatherdata/icon3.png" );
+    }
     day3_dateText = ( day3_dayName + " | " + day3_dayNum );
     day3_tempText = ( day3_high + " | " + day3_low );
     day3_windText = ( day3_winddir + " at " + day3_windavg + " mph" );

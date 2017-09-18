@@ -86,7 +86,7 @@ void draw() {
     showSystemMessage( msg );
   }
   if( speedSliderEngaged ) {
-    masterSpeed = lerpSquare( speedMin , speedMax , float(mouseX)/float(width) );
+    masterSpeed = lerpCube( speedMin , speedMax , float(mouseX)/float(width) );
     String msg = "speed =  " + nf( float( round( masterSpeed*100 ) ) / 100 , 0 , 2);
     showSystemMessage( msg );
   }
