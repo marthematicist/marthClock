@@ -1,6 +1,6 @@
 String zip = "98264";
 String APIkey = "41ece43d5325fc28";
-Boolean liveData = false;    // set true to get real data from api, false for testing
+Boolean liveData = true;    // set true to get real data from api, false for testing
 Boolean logClockUpdateTime = false;
 Boolean testing = true;
 
