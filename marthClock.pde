@@ -5,6 +5,9 @@ Boolean logClockUpdateTime = false;
 Boolean testing = false;
 WeatherCanvas W;
 
+void settings() {
+  fullScreen();
+}
 void setup() {
   if( testing ) { frameRate(16); }
   size( 800 , 480 );
