@@ -2,7 +2,8 @@ String zip = "98264";
 String APIkey = "41ece43d5325fc28";
 Boolean liveData = true;    // set true to get real data from api, false for testing
 Boolean logClockUpdateTime = false;
-Boolean testing = true;
+Boolean testing = false;
+WeatherCanvas W;
 
 void setup() {
   if( testing ) { frameRate(16); }
@@ -13,7 +14,9 @@ void setup() {
   xRes = float(width);
   yRes = float(height);
   
-  clock = new Clock();
+  //clock = new Clock();
+  
+  W = new WeatherCanvas(width, height);
   
   PE = new PixelEngine(2);
   PE.createNewRandomizerThread();
@@ -57,8 +60,11 @@ void draw() {
   PE.writePixelData();
   updatePixels();
   if( debug ) { println( frameCount + " pixels drawn at " + (millis()-st) ); }
-  
-  clock.drawClock();
+  if( weatherOn ) {
+    W.update();
+    image( W.buf, 0, 0 );
+  }
+  //clock.drawClock();
   
   PE.waitForBlockThreadsToFinish();
   if( debug ) { println( frameCount + " pixel threads done at " + (millis()-st) ); }
@@ -122,12 +128,13 @@ float alphaMin = 0.001;
 float alphaMax = 1;
 float speedMin = 0;
 float speedMax = 10;
-
+boolean weatherOn = true;
 boolean captureScreenshot = false;
 
 void mousePressed() {
   if( mouseY >= sliderHeight && height - mouseY >= sliderHeight ) { 
     mouseDownQuit = true;
+    weatherOn = !weatherOn;
     if( mouseX >= halfWidth ) { clock.nextClock(); }
     else { clock.prevClock(); }
   } else {

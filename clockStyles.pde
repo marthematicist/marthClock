@@ -75,8 +75,10 @@ class Clock {
   int sunsetHour;
   
   
+  
+  
   Clock() {
-    font1 = createFont("TruenoRg.otf",100);
+    font1 = createFont("OpenSans-Regular.ttf",100);
     font2 = createFont("TruenoRg.otf",100);
     font3 = createFont("TruenoRg.otf",100);
     font4 = createFont("TruenoRg.otf",100);
@@ -98,6 +100,12 @@ class Clock {
   }
   
   void drawClock() {
+    int sec = second();
+    int min = minute();
+    int hou = hour();
+    float secondAngle = sec/60.0*TWO_PI;
+    float minuteAngle = (min+sec/60.0)/60.0*TWO_PI;
+    float hourAngle = (hou%12+min/60.0+sec/3600.0)/12.0*TWO_PI ;
     
     if( second() != prevSecond ) {
       prevSecond = second();
@@ -196,9 +204,6 @@ class Clock {
         pg.image( icon3 , weatherX - 0.5*iconSize , day3_y + iconOffset , iconSize , iconSize );
         
         
-        float secondAngle = float(second())/60.0*TWO_PI;
-        float minuteAngle = float(minute())/60.0*TWO_PI + secondAngle/60.0;
-        float hourAngle = float(hour()%12)/12.0*TWO_PI + minuteAngle/60.0;
         
         float hourWidth = 12;
         float hourLengthFront = 140;
@@ -336,9 +341,6 @@ class Clock {
         pg.image( icon3 , weatherX - 0.5*iconSize , day3_y + iconOffset , iconSize , iconSize );
         
         
-        float secondAngle = float(second())/60.0*TWO_PI;
-        float minuteAngle = float(minute())/60.0*TWO_PI + secondAngle/60.0;
-        float hourAngle = float(hour()%12)/12.0*TWO_PI + minuteAngle/60.0;
         
         float hourWidth = 12;
         float hourLengthFront = 140;
@@ -426,9 +428,6 @@ class Clock {
         pg.beginDraw();
         //pg.strokeCap( SQUARE );
         pg.clear();
-        float secondAngle = float(second())/60.0*TWO_PI;
-        float minuteAngle = float(minute())/60.0*TWO_PI + secondAngle/60.0;
-        float hourAngle = float(hour()%12)/12.0*TWO_PI + minuteAngle/60.0;
         
         float hourWidth = 12;
         float hourLengthFront = 140;
@@ -516,9 +515,6 @@ class Clock {
         pg.beginDraw();
         //pg.strokeCap( SQUARE );
         pg.clear();
-        float secondAngle = float(second())/60.0*TWO_PI;
-        float minuteAngle = float(minute())/60.0*TWO_PI + secondAngle/60.0;
-        float hourAngle = float(hour()%12)/12.0*TWO_PI + minuteAngle/60.0;
         
         float hourWidth = 12;
         float hourLengthFront = 140;
