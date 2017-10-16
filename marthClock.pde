@@ -135,8 +135,10 @@ void mousePressed() {
   if( mouseY >= sliderHeight && height - mouseY >= sliderHeight ) { 
     mouseDownQuit = true;
     weatherOn = !weatherOn;
+    /*
     if( mouseX >= halfWidth ) { clock.nextClock(); }
     else { clock.prevClock(); }
+    */
   } else {
     if( mouseY >sliderHeight ) {
       speedSliderEngaged = true;
