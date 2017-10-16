@@ -15,8 +15,12 @@ void setup() {
   yRes = float(height);
   
   //clock = new Clock();
-  
-  W = new WeatherCanvas(width, height);
+  try {
+    W = new WeatherCanvas(width, height);
+  } catch( Exception e) {
+    println( e.getMessage() );
+    exit();
+  }
   
   PE = new PixelEngine(2);
   PE.createNewRandomizerThread();
