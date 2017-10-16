@@ -22,11 +22,11 @@ float bSpeed = 1;
 float fOffset = 0.0;
 float hOffset = 0;
 float sOffset = 0.25;
-float bOffset = 0.05;
+float bOffset = 0.25;
 float bandOffset = 30;
 float[] bandStart = { 0.20 , 0.37 , 0.47 , 0.57 , 0.70 };
 float[] bandEnd   = { 0.30 , 0.43 , 0.53 , 0.63 , 0.80 };
-float bw = 0.000;
+float bw = 0.007;
 float[] bandWidth = { bw , bw , bw , bw , bw };
 int numBands = 5;
 
