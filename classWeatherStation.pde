@@ -36,7 +36,7 @@ class WeatherCanvas {
     buf = createGraphics( w, h );
     OpenSansLight = createFont( "OpenSans-Light.ttf", 1,true);
     OpenSansRegular = createFont( "OpenSans-Regular.ttf", 1,true);
-    weather = new WeatherData( "weatherSettings.txt" );
+    weather = new WeatherData( "../weatherSettings.txt" );
     weather.FetchWeather();
     float dw = w / (numDayForecasts+1.0);
     float dh = 0.25*h;
