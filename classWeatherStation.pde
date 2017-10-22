@@ -29,6 +29,8 @@ class WeatherCanvas {
   CurrentConditionsDisplay currentConditionsDisplay;
   DateDisplay dateDisplay;
   TimeDisplay timeDisplay;
+  DateTimeDisplay dateTimeDisplay;
+  WeekForecastDisplay weekForecastDisplay;
   int CURRENT = -1;
   float cornerRadius;
   boolean drawBG = true;
@@ -42,7 +44,10 @@ class WeatherCanvas {
     weather = new WeatherData( "../weatherSettings.txt" );
     weather.FetchWeather();
     cornerRadius = 0.02*w;
-    float dw = w / (numDayForecasts+1.0);
+    float outerGap = 0.01*w;
+    float innerGap = 0.05*w;
+    float dw = (w-2*outerGap - (numDayForecasts-1)*innerGap) / (numDayForecasts);
+    
     float dh = 0.25*h;
     float cw = dw;
     float ch = dw;
@@ -51,36 +56,30 @@ class WeatherCanvas {
     nextWeatherUpdateTime = Calendar.getInstance();
     nextWeatherUpdateTime.add( Calendar.SECOND, secondsBetweenWeatherUpdates );
     nextTimeUpdateTime = nextMinute();
-
-    dayForecast = new BasicDayForecast[numDayForecasts];
-    for ( int i = 0; i < numDayForecasts; i++ ) {
-      float x0 = (i+0.5)*dw;
-      float y0 = 0.75*h-0.25*dw;
-      dayForecast[i] = new BasicDayForecast( x0, y0, round(0.9*dw), round(dh), i );
-    }
-    currentConditionsDisplay = new CurrentConditionsDisplay( 0.5*dw, 0.25*dw, round(2.25*dw), round(dw) );
-    dateDisplay = new DateDisplay( 3.5*dw, 0.25*dw, round(3*dw), round(0.25*dw) );
-    timeDisplay = new TimeDisplay( 3.5*dw, 0.50*dw, round(3*dw), round(0.75*dw) );
+    
+    //dayForecast = new BasicDayForecast[numDayForecasts];
+    
+    currentConditionsDisplay = new CurrentConditionsDisplay(outerGap , outerGap, round(2.25*dw), round(0.8*dh) );
+    dateTimeDisplay = new DateTimeDisplay( -outerGap + w - 0.4*w , outerGap , round(0.4*w) , round(0.8*dh) );
+    weekForecastDisplay = new WeekForecastDisplay( outerGap , h-dh-outerGap , round(w-2*outerGap) , round(dh) );
     drawCanvas();
+    
   }
 
-  void update() {
+  void update( boolean forceUpdate ) {
     Boolean drawIt = false;
     Calendar currentTime = Calendar.getInstance();
-    if ( currentTime.after( nextWeatherUpdateTime ) ) {
+    if ( currentTime.after( nextWeatherUpdateTime ) || forceUpdate ) {
       nextWeatherUpdateTime = Calendar.getInstance();
       nextWeatherUpdateTime.add( Calendar.SECOND, secondsBetweenWeatherUpdates );
       weather.FetchWeather();
-      for ( int i = 0; i<numDayForecasts; i++ ) {
-        dayForecast[i].update();
-      }
-      currentConditionsDisplay.update();
+      weekForecastDisplay.update(forceUpdate);
+      currentConditionsDisplay.update(forceUpdate);
       drawIt = true;
     }
-    if ( currentTime.after( nextTimeUpdateTime ) ) {
+    if ( currentTime.after( nextTimeUpdateTime ) ||forceUpdate ) {
       nextTimeUpdateTime = nextMinute();
-      dateDisplay.update();
-      timeDisplay.update();
+      dateTimeDisplay.update(forceUpdate);
       drawIt = true;
     }
     if ( drawIt ) {
@@ -92,17 +91,9 @@ class WeatherCanvas {
     float dw = buf.width / (numDayForecasts+1.0);
     buf.beginDraw();
     buf.clear();
-    if( drawBG ) {
-          buf.noStroke();
-          buf.fill( bgColor );
-          buf.rect(3.5*dw, 0.25*dw, round(3*dw) , round(dw),cornerRadius,cornerRadius,cornerRadius,cornerRadius);
-        }
-    for ( int i = 0; i<numDayForecasts; i++ ) {
-      buf.image( dayForecast[i].can, round(dayForecast[i].x), round(dayForecast[i].y) );
-    }
+    buf.image( weekForecastDisplay.can, round(weekForecastDisplay.x), round(weekForecastDisplay.y) );
     buf.image( currentConditionsDisplay.can, round(currentConditionsDisplay.x), round(currentConditionsDisplay.y) );
-    buf.image( dateDisplay.can, round(dateDisplay.x), round(dateDisplay.y) );
-    buf.image( timeDisplay.can, round(timeDisplay.x), round(timeDisplay.y) );
+    buf.image( dateTimeDisplay.can, round(dateTimeDisplay.x), round(dateTimeDisplay.y) );
     buf.endDraw();
   }
 
@@ -110,6 +101,82 @@ class WeatherCanvas {
     Calendar date = Calendar.getInstance();
     String newTimeString = date.get(Calendar.HOUR) + ":" + nf(date.get(Calendar.MINUTE),2) + ":" + nf(date.get(Calendar.SECOND),2) + AMPMStrings[date.get(Calendar.AM_PM)];
     println( newTimeString + ": " + s );
+  }
+  
+  class WeekForecastDisplay {
+    float x;
+    float y;
+    int w;
+    int h;
+    PGraphics can;
+    BasicDayForecast[] dayForecast;
+    WeekForecastDisplay( float xIn, float yIn, int wIn, int hIn ) {
+      this.x = xIn;
+      this.y = yIn;
+      this.w = wIn;
+      this.h = hIn;
+      this.can = createGraphics(w, h);
+      float innerGap = w / numDayForecasts * 0.2;
+      float dw = (w-innerGap*(numDayForecasts-1)) / numDayForecasts;
+      dayForecast = new BasicDayForecast[numDayForecasts];
+      for ( int i = 0; i < numDayForecasts; i++ ) {
+        float x0 = (i)*(dw+innerGap);
+        float y0 = (0);
+        dayForecast[i] = new BasicDayForecast( x0, y0, round(dw), round(h), i );
+      }
+      update( true );
+    }
+    void update( boolean forceUpdate ) {
+      Boolean drawIt = false;
+      for ( int i = 0; i<numDayForecasts; i++ ) {
+        Boolean temp = dayForecast[i].update(forceUpdate);
+        if( temp ) {
+          drawIt = true;
+        }
+      }
+      if( drawIt ) {
+        can.beginDraw();
+        can.clear();
+        for ( int i = 0; i<numDayForecasts; i++ ) {
+          can.image( dayForecast[i].can, round(dayForecast[i].x), round(dayForecast[i].y) );
+        }
+        can.endDraw();
+      }
+    }
+  }
+  
+  class DateTimeDisplay {
+    float x;
+    float y;
+    int w;
+    int h;
+    PGraphics can;
+    TimeDisplay T;
+    DateDisplay D;
+    DateTimeDisplay( float xIn, float yIn, int wIn, int hIn ) {
+      this.x = xIn;
+      this.y = yIn;
+      this.w = wIn;
+      this.h = hIn;
+      this.can = createGraphics(w, h);
+      this.D = new DateDisplay( 0 , 0 , w , round( 0.25*h ) );
+      this.T = new TimeDisplay( 0 , 0+0.25*h , w , round( 0.75*h ) );
+      update(true);
+    }
+    void update( boolean forceUpdate ) {
+      D.update(forceUpdate);
+      T.update(forceUpdate);
+      can.beginDraw();
+      can.clear();
+      if( drawBG ) {
+        can.noStroke();
+        can.fill( bgColor );
+        can.rect(0,0,w,h,cornerRadius,cornerRadius,cornerRadius,cornerRadius);
+      }
+      can.image( D.can , D.x , D.y );
+      can.image( T.can , T.x , T.y );
+      can.endDraw();
+    }
   }
   
   class TimeDisplay {
@@ -126,24 +193,19 @@ class WeatherCanvas {
       this.w = wIn;
       this.h = hIn;
       this.can = createGraphics(w, h);
-      update();
+      update(true);
     }
-    void update() {
+    void update( boolean forceUpdate ) {
       Calendar date = Calendar.getInstance();
       int hr = date.get(Calendar.HOUR);
       if( hr == 0 ) { hr = 12; }
       String newTimeString = nf(hr) + ":" + nf(date.get(Calendar.MINUTE),2);
       String newAmpmString = AMPMStrings[date.get(Calendar.AM_PM)];
-      if ( !timeString.equals(newTimeString ) ) {
+      if ( !timeString.equals(newTimeString ) || forceUpdate ) {
         timeString = newTimeString;
         ampmString = newAmpmString;
         can.beginDraw();
         can.clear();
-        if( false ) {
-          can.noStroke();
-          can.fill( bgColor );
-          can.rect(0,0,w,h,0,0,cornerRadius,cornerRadius);
-        }
         can.textFont( OpenSansLight );
         can.textSize( 0.9*h );
         float tw = can.textWidth( timeString );
@@ -172,20 +234,15 @@ class WeatherCanvas {
       this.w = wIn;
       this.h = hIn;
       this.can = createGraphics(w, h);
-      update();
+      update(true);
     }
-    void update() {
+    void update( boolean forceUpdate ) {
       Calendar date = Calendar.getInstance();
       String newDateString = DayOfWeekStringsLong[date.get(Calendar.DAY_OF_WEEK)] + ", " + MonthStringsLong[date.get(Calendar.MONTH)] + " " + DayStringsLong[date.get(Calendar.DATE)];
-      if ( !dateString.equals(newDateString ) ) {
+      if ( !dateString.equals(newDateString ) || forceUpdate ) {
         dateString = newDateString;
         can.beginDraw();
         can.clear();
-        if( false ) {
-          can.noStroke();
-          can.fill( bgColor );
-          can.rect(0,0,w,h,cornerRadius,cornerRadius,0,0);
-        }
         can.textFont( OpenSansRegular );
         can.textSize( 0.9*h );
         float tw = can.textWidth( dateString );
@@ -213,12 +270,12 @@ class WeatherCanvas {
       this.td = new TempDisplay( h, 0.5*h - scale*0.5*h, round(w-h), round(scale*0.5*h), -1 );
       this.wd = new WindDisplay( h, 0.5*h - 0, round(0.5*w), round(scale*0.5*h), -1 );
       this.can = createGraphics(w, h);
-      update();
+      update(true);
     }
-    void update() {
-      boolean b1 = td.update();
-      boolean b2 = wd.update();
-      if ( b1 || b2 ) {
+    void update( boolean forceUpdate ) {
+      boolean b1 = td.update(forceUpdate);
+      boolean b2 = wd.update(forceUpdate);
+      if ( b1 || b2 || forceUpdate) {
         can.beginDraw();
         can.clear();
         if( drawBG ) {
@@ -263,7 +320,7 @@ class WeatherCanvas {
       this.compassBuf = createGraphics(h, h);
       //update();
     }
-    boolean update() {
+    boolean update( boolean forceUpdate ) {
       int newWindDir;
       int newWindSpeed;
       if ( dayNum >= 0 && dayNum < 8 ) {
@@ -273,7 +330,7 @@ class WeatherCanvas {
         newWindDir = round(weather.current.windBearing);
         newWindSpeed = round(weather.current.windSpeed);
       }
-      if ( newWindDir != windDir ) {
+      if ( newWindDir != windDir || forceUpdate ) {
         compassBuf.beginDraw();
         compassBuf.clear();
         compassBuf.pushMatrix();
@@ -287,7 +344,7 @@ class WeatherCanvas {
         //compassBuf.rect(0, 0, compassSize-1, compassSize-1);
         compassBuf.endDraw();
       }
-      if ( newWindDir != windDir || newWindSpeed != windSpeed ) {
+      if ( newWindDir != windDir || newWindSpeed != windSpeed || forceUpdate ) {
         windSpeed = newWindSpeed;
         windDir = newWindDir;
         can.beginDraw();
@@ -351,14 +408,14 @@ class WeatherCanvas {
         thermValue = 4;
       }
     }
-    boolean update() {
+    boolean update( boolean forceUpdate ) {
       int newTemp;
       if ( dayNum >= 0 && dayNum < 8 ) {
         newTemp = round(weather.weekForecast[dayNum].temperature);
       } else {
         newTemp = round(weather.current.temperature);
       }
-      if ( newTemp != temp ) {
+      if ( newTemp != temp || forceUpdate ) {
         temp = newTemp;
         setThermValue();
         can.beginDraw();
@@ -404,15 +461,15 @@ class WeatherCanvas {
       this.dayNum = dayNumIn;
       this.icon =  " ";
       this.can = createGraphics(w, h);
-      update();
+      update(true);
     }
-    boolean update() {
+    boolean update( boolean forceUpdate ) {
       boolean dayOfWeekChanged = !( dayOfWeek == weather.weekForecast[dayNum].date.get(Calendar.DAY_OF_WEEK) );
       boolean dateChanged = !( date == weather.weekForecast[dayNum].date.get(Calendar.DATE) );
       boolean hiTempChanged = !( hiTemp == round(weather.weekForecast[dayNum].temperatureHigh) );
       boolean loTempChanged = !( loTemp == round(weather.weekForecast[dayNum].temperatureLow) );
       boolean iconChanged = !( icon.equals(weather.weekForecast[dayNum].icon) );
-      if ( dayOfWeekChanged || dateChanged || hiTempChanged || loTempChanged || iconChanged ) {
+      if ( dayOfWeekChanged || dateChanged || hiTempChanged || loTempChanged || iconChanged || forceUpdate ) {
         this.dayOfWeek = weather.weekForecast[dayNum].date.get(Calendar.DAY_OF_WEEK);
         this.date = weather.weekForecast[dayNum].date.get(Calendar.DATE);
         this.dayString = DayOfWeekStringsShort[dayOfWeek] + " " + date;

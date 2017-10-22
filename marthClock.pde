@@ -4,10 +4,11 @@ Boolean liveData = true;    // set true to get real data from api, false for tes
 Boolean logClockUpdateTime = false;
 Boolean testing = false;
 WeatherCanvas W;
-
+/*
 void settings() {
   fullScreen();
 }
+*/
 void setup() {
   if( testing ) { frameRate(16); }
   size( 800 , 480 );
@@ -68,7 +69,7 @@ void draw() {
   updatePixels();
   if( debug ) { println( frameCount + " pixels drawn at " + (millis()-st) ); }
   if( weatherOn ) {
-    W.update();
+    W.update(false);
     image( W.buf, 0, 0 );
   }
   //clock.drawClock();

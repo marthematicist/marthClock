@@ -9,7 +9,7 @@ PixelEngine PE;
 
 // SETTINGS
 float alpha = 0.03;
-float masterSpeed = 1;
+float masterSpeed = 2;
 
 float fDetail = 1;
 float hDetail = 1;
