@@ -70,6 +70,7 @@ void draw() {
   if( debug ) { println( frameCount + " pixels drawn at " + (millis()-st) ); }
   if( weatherOn ) {
     W.update(false);
+    tint(255,224);
     image( W.buf, 0, 0 );
   }
   //clock.drawClock();
