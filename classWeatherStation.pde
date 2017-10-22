@@ -268,7 +268,7 @@ class WeatherCanvas {
       this.w = wIn;
       this.h = hIn;
       this.td = new TempDisplay( h, 0.5*h - scale*0.5*h, round(w-h), round(scale*0.5*h), -1 );
-      this.wd = new WindDisplay( h, 0.5*h - 0, round(0.5*w), round(scale*0.5*h), -1 );
+      this.wd = new WindDisplay( h, 0.5*h - 0, round(w-h), round(scale*0.5*h), -1 );
       this.can = createGraphics(w, h);
       update(true);
     }
