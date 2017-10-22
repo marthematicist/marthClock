@@ -206,7 +206,7 @@ class WeatherCanvas {
         ampmString = newAmpmString;
         can.beginDraw();
         can.clear();
-        can.textFont( OpenSansLight );
+        can.textFont( OpenSansRegular );
         can.textSize( 0.9*h );
         float tw = can.textWidth( timeString );
         can.textSize( 0.45*h );
