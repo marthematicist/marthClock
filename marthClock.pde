@@ -4,11 +4,11 @@ Boolean liveData = true;    // set true to get real data from api, false for tes
 Boolean logClockUpdateTime = false;
 Boolean testing = false;
 WeatherCanvas W;
-/*
+
 void settings() {
   fullScreen();
 }
-*/
+
 void setup() {
   if( testing ) { frameRate(16); }
   size( 800 , 480 );
