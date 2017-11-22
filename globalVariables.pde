@@ -3,7 +3,7 @@ int halfHeight;       // half of screen y resulution. set in setup()
 float xRes;           // screen resolution
 float yRes;           // screen resolution
 PGraphics pg;         // graphics buffer (clock)
-int numSpokes = 12;   // number of spokes in kaleidoscope background
+int numSpokes = 4;   // number of spokes in kaleidoscope background
 Clock clock;
 PixelEngine PE;
 

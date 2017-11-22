@@ -245,7 +245,7 @@ class RenderedPixel {
     // Calculate render location
     float ang = atan2( float(x) , float(y) ) % ( TWO_PI/numSpokes );
     if( ang > 0.5*( TWO_PI/numSpokes ) ) {
-      ang = TWO_PI/12.0 - ang ;
+      ang = TWO_PI/numSpokes - ang ;
     }
     float rad = sqrt( float(x*x) + float(y*y) );
     this.xRender = rad*cos(ang);
